@@ -1,0 +1,2007 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>知识库原型</title>
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --panel: #ffffff;
+      --line: #e7e9ed;
+      --line-strong: #dce1e8;
+      --text: #20242c;
+      --muted: #8d949e;
+      --muted-2: #b6bcc5;
+      --hover: #f5f7fa;
+      --active: #171b22;
+      --brand: #2f73ff;
+      --brand-soft: #eef5ff;
+      --danger: #e35b5b;
+      --warning: #b7791f;
+      --warning-soft: #fff7e6;
+      --success: #278a53;
+      --success-soft: #eefaf3;
+      --error-soft: #fff1f1;
+      --shadow: 0 20px 60px rgba(15, 23, 42, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .app {
+      position: relative;
+      display: grid;
+      grid-template-columns: 64px minmax(330px, 25vw) minmax(520px, 42vw) minmax(360px, 33vw);
+      grid-template-rows: 50px 1fr;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .topbar {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      height: 50px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(248, 249, 251, 0.96);
+      z-index: 20;
+    }
+
+    .kb-trigger {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 154px;
+      height: 38px;
+      margin-left: 10px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+
+    .kb-trigger .name {
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .kb-trigger .role {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .kb-trigger .chevron {
+      margin-left: auto;
+      color: var(--muted-2);
+      font-size: 11px;
+    }
+
+    .top-link {
+      height: 50px;
+      padding: 0 6px;
+      color: #59616b;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .top-link:hover {
+      color: var(--active);
+    }
+
+    .rail {
+      grid-column: 1;
+      grid-row: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      padding-top: 18px;
+      border-right: 1px solid var(--line);
+      background: #fbfcfd;
+    }
+
+    .rail-btn {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: #9ca3ad;
+      font-size: 19px;
+      line-height: 1;
+    }
+
+    .rail-btn.active {
+      background: #20242c;
+      color: #fff;
+    }
+
+    .rail-spacer {
+      flex: 1;
+    }
+
+    .kb-home {
+      grid-column: 2;
+      grid-row: 2;
+      min-width: 0;
+      border-right: 1px solid var(--line);
+      background: #fcfdfe;
+      overflow: hidden;
+    }
+
+    .kb-home-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 76px;
+      padding: 0 20px;
+    }
+
+    .kb-home-title {
+      min-width: 0;
+      flex: 1;
+      font-size: 19px;
+      font-weight: 800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 34px;
+      padding: 0 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      background: #fff;
+      color: #2f3540;
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+
+    .upload-btn:hover {
+      background: var(--hover);
+    }
+
+    .kb-home-body {
+      height: calc(100% - 76px);
+      padding: 6px 20px 24px;
+      overflow: auto;
+    }
+
+    .home-empty {
+      margin: 8px 0 22px;
+      color: #969da7;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.7;
+    }
+
+    .section-block {
+      margin-top: 20px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      color: #545c67;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .section-count {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tree-item,
+    .concept-item,
+    .entity-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+      padding: 0 10px;
+      border-radius: 7px;
+      color: #3e4651;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .tree-item:hover,
+    .concept-item:hover,
+    .entity-item:hover {
+      background: var(--hover);
+    }
+
+    .muted-icon {
+      color: #9aa2ad;
+      font-size: 15px;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 30px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: #4f5864;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .view.hidden {
+      display: none;
+    }
+
+    .chat-view {
+      grid-column: 3 / 5;
+      grid-row: 2;
+      display: grid;
+      grid-template-columns: 1fr 42px;
+      min-width: 0;
+      background: #fff;
+    }
+
+    .chat-shell {
+      display: grid;
+      grid-template-rows: 76px 1fr 170px;
+      min-width: 0;
+      border-right: 1px solid var(--line);
+    }
+
+    .chat-head {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-icon {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 5px;
+      color: #5e6570;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .chat-title {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .chat-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      color: #626a75;
+      font-size: 18px;
+    }
+
+    .chat-body {
+      padding: 24px;
+      color: #9aa1aa;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .composer-wrap {
+      padding: 0 24px 20px;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .composer {
+      position: relative;
+      width: 100%;
+      height: 126px;
+      padding: 28px 64px 24px 26px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: #fff;
+      color: #a1a7b0;
+      font-size: 16px;
+      font-weight: 700;
+      box-shadow: 0 3px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    .send {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #c6cad0;
+      color: #fff;
+      font-size: 20px;
+      transform: rotate(45deg);
+    }
+
+    .right-strip {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 28px;
+      color: #6f7680;
+      font-size: 18px;
+    }
+
+    .graph-view {
+      grid-column: 2 / 5;
+      grid-row: 2;
+      min-width: 0;
+      background: #fff;
+    }
+
+    .simple-page {
+      grid-column: 3 / 5;
+      grid-row: 2;
+      min-width: 0;
+      background: #fff;
+    }
+
+    .graph-view {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .graph-canvas {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(47, 115, 255, 0.04), transparent 38%),
+        #fbfcfd;
+    }
+
+    .graph-line {
+      position: absolute;
+      height: 2px;
+      background: rgba(95, 141, 204, 0.28);
+      transform-origin: 0 50%;
+    }
+
+    .graph-node {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transform: translate(-50%, -50%);
+      color: #222833;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+    }
+
+    .dot.big {
+      width: 62px;
+      height: 62px;
+    }
+
+    .entity {
+      background: #4a90e2;
+    }
+
+    .concept {
+      background: #a55eea;
+    }
+
+    .source {
+      background: #ff8a2a;
+    }
+
+    .query {
+      background: #36d36f;
+    }
+
+    .overview {
+      background: #ffc928;
+    }
+
+    .other {
+      background: #9aa6b7;
+    }
+
+    .graph-tools {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .graph-tool {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.88);
+      color: #5d6570;
+      font-size: 17px;
+      font-weight: 900;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    }
+
+    .legend {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      width: 150px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+    }
+
+    .legend-title {
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 22px;
+      color: #68717d;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .simple-page {
+      display: grid;
+      place-items: center;
+      color: #8d949e;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .resource {
+      grid-column: 3;
+      grid-row: 2;
+      display: grid;
+      grid-template-rows: 76px 1fr;
+      min-width: 0;
+      border-right: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .resource-head {
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .resource-title {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .resource-meta {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .refresh {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 10px;
+      border-radius: 6px;
+      color: #66707c;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .refresh:hover {
+      background: var(--hover);
+    }
+
+    .resource-list {
+      padding: 18px 24px;
+      overflow: auto;
+    }
+
+    .resource-card {
+      display: grid;
+      grid-template-columns: 32px 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+      min-height: 68px;
+      margin-bottom: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .resource-card.selected {
+      border-color: #5a93ff;
+      background: #edf5ff;
+      box-shadow: inset 3px 0 0 var(--brand);
+    }
+
+    .file-icon {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #c9dcff;
+      border-radius: 6px;
+      background: #f7fbff;
+      color: var(--brand);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .resource-name {
+      font-size: 15px;
+      font-weight: 800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .resource-sub {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      height: 26px;
+      padding: 0 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .status.uploading {
+      color: #2f6bdc;
+      background: var(--brand-soft);
+    }
+
+    .status.producing {
+      color: var(--warning);
+      background: var(--warning-soft);
+    }
+
+    .status.success {
+      color: var(--success);
+      background: var(--success-soft);
+    }
+
+    .status.failed {
+      color: var(--danger);
+      background: var(--error-soft);
+    }
+
+    .weak-delete {
+      color: #c8a0a0;
+      font-size: 13px;
+      font-weight: 700;
+      opacity: 0;
+    }
+
+    .resource-card:hover .weak-delete,
+    .kb-item:hover .weak-delete,
+    .member-row:hover .weak-delete {
+      opacity: 1;
+    }
+
+    .weak-delete:hover {
+      color: var(--danger);
+    }
+
+    .inline-edit {
+      flex: 0 0 auto;
+      width: 22px;
+      height: 22px;
+      display: none;
+      place-items: center;
+      border-radius: 5px;
+      color: #8b949f;
+      font-size: 14px;
+      line-height: 1;
+      opacity: 1;
+    }
+
+    .kb-item.selected .inline-edit {
+      display: grid;
+    }
+
+    .inline-edit:hover {
+      background: var(--hover);
+      color: var(--brand);
+    }
+
+    .kb-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 42px;
+      min-height: 42px;
+      opacity: 1;
+    }
+
+    .kb-actions .weak-delete {
+      opacity: 0;
+    }
+
+    .kb-item:hover .kb-actions .weak-delete {
+      opacity: 1;
+    }
+
+    .inline-name-input {
+      display: none;
+    }
+
+    .kb-item.editing .kb-name {
+      display: none;
+    }
+
+    .rename-input {
+      width: 160px;
+      height: 32px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      padding: 0 9px;
+      outline: none;
+      font-weight: 800;
+    }
+
+    .kb-item.editing .inline-name-input {
+      display: block;
+    }
+
+    .save-rename {
+      display: none;
+      width: 24px;
+      height: 24px;
+      place-items: center;
+      border-radius: 6px;
+      color: var(--success);
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .kb-item.editing .inline-edit {
+      display: none;
+    }
+
+    .kb-item.editing .save-rename {
+      display: grid;
+    }
+
+    .detail {
+      grid-column: 4;
+      grid-row: 2;
+      display: grid;
+      grid-template-rows: 76px 1fr;
+      min-width: 0;
+      background: #fff;
+    }
+
+    .detail-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .detail-title {
+      min-width: 0;
+      font-size: 19px;
+      font-weight: 900;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .detail-badge {
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 8px;
+      border-radius: 6px;
+      color: var(--brand);
+      background: var(--brand-soft);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .detail-sub {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .detail-body {
+      padding: 20px 22px;
+      overflow: auto;
+    }
+
+    .extract-box {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: #969da7;
+      font-size: 14px;
+      font-weight: 700;
+      background: #fff;
+    }
+
+    .origin-head {
+      display: flex;
+      align-items: center;
+      margin: 18px 0 10px;
+      color: #737b86;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .download {
+      margin-left: auto;
+      height: 30px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      color: #343a44;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .preview-note {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border-radius: 7px;
+      background: #f6f7f9;
+      color: #717984;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .kb-menu {
+      position: absolute;
+      top: 50px;
+      left: 10px;
+      width: 366px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.12);
+      z-index: 60;
+      overflow: hidden;
+      display: none;
+    }
+
+    .kb-menu-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 16px 10px;
+    }
+
+    .kb-menu-title {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .kb-menu-count {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .kb-list {
+      padding: 0 10px 8px;
+    }
+
+    .kb-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 62px;
+      padding: 10px 10px 10px 12px;
+      border-radius: 7px;
+    }
+
+    .kb-item:hover,
+    .kb-item.selected {
+      background: #f6f8fb;
+    }
+
+    .kb-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .kb-name {
+      font-size: 16px;
+      font-weight: 900;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      color: #626a75;
+      background: #eef0f3;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .chip.current {
+      color: #1f5fc9;
+      background: var(--brand-soft);
+    }
+
+    .kb-meta {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .create-kb {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      min-height: 54px;
+      padding: 0 22px;
+      border-top: 1px solid var(--line);
+      color: #22262e;
+      font-size: 17px;
+      font-weight: 900;
+      background: #fff;
+    }
+
+    .create-kb:hover {
+      background: var(--hover);
+    }
+
+    .modal-layer {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(17, 24, 39, 0.22);
+      z-index: 100;
+    }
+
+    .modal-layer.show {
+      display: flex;
+    }
+
+    .modal {
+      width: min(760px, calc(100vw - 48px));
+      max-height: calc(100vh - 48px);
+      display: grid;
+      grid-template-rows: 64px 1fr 72px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .modal.large {
+      width: min(1040px, calc(100vw - 48px));
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      min-height: 64px;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-title {
+      font-size: 19px;
+      font-weight: 900;
+    }
+
+    .modal-sub {
+      margin-left: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .close {
+      margin-left: auto;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      color: #737b86;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .close:hover {
+      background: var(--hover);
+    }
+
+    .modal-body {
+      padding: 22px;
+      overflow: auto;
+    }
+
+    .modal-foot {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 0 22px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .secondary {
+      min-width: 96px;
+      height: 42px;
+      padding: 0 18px;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      background: #fff;
+      color: #343a44;
+      font-weight: 900;
+    }
+
+    .primary {
+      min-width: 112px;
+      height: 42px;
+      padding: 0 18px;
+      border-radius: 7px;
+      background: #20242c;
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    .label {
+      margin-bottom: 10px;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .label .optional {
+      margin-left: 6px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .input,
+    .textarea {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      outline: none;
+      color: var(--text);
+      background: #fff;
+      font-weight: 700;
+    }
+
+    .input {
+      height: 48px;
+      padding: 0 14px;
+    }
+
+    .textarea {
+      min-height: 96px;
+      resize: vertical;
+      padding: 14px;
+      line-height: 1.6;
+    }
+
+    .input::placeholder,
+    .textarea::placeholder {
+      color: #a7aeb8;
+    }
+
+    .input:focus,
+    .textarea:focus,
+    .search:focus,
+    .select:focus {
+      border-color: #9ab8f8;
+      box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.12);
+    }
+
+    .template-zone {
+      margin-bottom: 12px;
+      padding: 12px;
+      border: 1px dashed #ccd5e2;
+      border-radius: 8px;
+      background: #fbfcff;
+    }
+
+    .template-title {
+      color: #5c6571;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .template-desc {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .template-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .template-chip {
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: #58616d;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .source-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .source-card {
+      min-height: 212px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .source-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfd;
+    }
+
+    .source-title {
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .source-body {
+      flex: 1;
+      max-height: 176px;
+      padding: 14px;
+      overflow: auto;
+    }
+
+    .dropzone {
+      min-height: 82px;
+      display: grid;
+      place-items: center;
+      border: 1px dashed #cdd5df;
+      border-radius: 8px;
+      color: #858e99;
+      background: #fbfcff;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .small-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .permission-tools {
+      display: grid;
+      grid-template-columns: 1fr 136px auto;
+      gap: 10px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfd;
+    }
+
+    .search,
+    .select {
+      height: 42px;
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      padding: 0 12px;
+      outline: none;
+      background: #fff;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .add-btn {
+      min-width: 86px;
+      height: 42px;
+      padding: 0 16px;
+      border-radius: 7px;
+      background: #20242c;
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .member-list {
+      padding: 8px 12px 14px;
+      max-height: 390px;
+      overflow: auto;
+    }
+
+    .member-row {
+      display: grid;
+      grid-template-columns: 42px 1fr auto auto;
+      align-items: center;
+      gap: 12px;
+      min-height: 68px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .member-row:hover {
+      background: #f7f9fb;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #edf1f6;
+      color: #59616d;
+      font-weight: 900;
+    }
+
+    .member-name {
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .member-email {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .role-pill {
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: #f0f2f5;
+      color: #626a75;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .search-modal-body {
+      padding: 18px 22px 22px;
+    }
+
+    .search-wide {
+      height: 48px;
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 0 14px;
+      outline: none;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .search-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .search-tab {
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: #eef0f3;
+      color: #59616d;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .search-tab.active {
+      background: var(--brand-soft);
+      color: #1f5fc9;
+    }
+
+    .search-result {
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      min-height: 64px;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .result-type {
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: #f0f2f5;
+      color: #69727e;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .result-title {
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .result-desc {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .view.hidden,
+    .resource.view.hidden,
+    .detail.view.hidden,
+    .chat-view.view.hidden,
+    .graph-view.view.hidden,
+    .simple-page.view.hidden {
+      display: none;
+    }
+
+    @media (max-width: 1180px) {
+      .app {
+        grid-template-columns: 56px 310px 1fr;
+      }
+
+      .detail {
+        display: none;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .app {
+        grid-template-columns: 54px 1fr;
+      }
+
+      .kb-home {
+        display: none;
+      }
+
+      .resource {
+        grid-column: 2;
+      }
+
+      .source-grid,
+      .permission-tools {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <button class="kb-trigger" id="kbTrigger" type="button" aria-haspopup="true" aria-expanded="false">
+        <span class="name">知识库1</span>
+        <span class="role">所有者</span>
+        <span class="chevron">▼</span>
+      </button>
+      <button class="top-link" id="permissionOpen" type="button">协作权限</button>
+    </header>
+
+    <nav class="rail" aria-label="主导航">
+      <button class="rail-btn active" data-view="knowledge" type="button" title="知识库">◧</button>
+      <button class="rail-btn" data-search="true" type="button" title="搜索">⌕</button>
+      <button class="rail-btn" data-view="graph" type="button" title="图谱">⌘</button>
+      <button class="rail-btn" data-view="resource" type="button" title="资源库">▤</button>
+      <button class="rail-btn" data-view="lint" type="button" title="Lint 检查">ϟ</button>
+      <button class="rail-btn" data-view="review" type="button" title="待审核">☷</button>
+      <div class="rail-spacer"></div>
+      <button class="rail-btn" type="button">⚙</button>
+    </nav>
+
+    <aside class="kb-home">
+      <div class="kb-home-head">
+        <div class="kb-home-title">Mario Wiki</div>
+        <button class="upload-btn" id="uploadOpen" type="button">↑ 上传知识</button>
+      </div>
+      <div class="kb-home-body">
+        <div class="home-empty">暂无页面。从顶部录入资料，知识生成后页面会出现在这里。</div>
+
+        <section class="section-block">
+          <div class="section-head">
+            <span>根目录</span>
+          </div>
+          <div class="tree-item"><span class="muted-icon">▾</span> 根目录</div>
+          <div class="tree-item"><span class="muted-icon">└</span> /weekly</div>
+          <div class="tree-item"><span class="muted-icon">└</span> /projects</div>
+          <div class="tree-item"><span class="muted-icon">└</span> /reviews</div>
+        </section>
+
+        <section class="section-block">
+          <div class="section-head">
+            <span>概念</span>
+          </div>
+          <div class="tree-item"><span class="muted-icon">▾</span> 概念</div>
+          <div class="tree-item"><span class="muted-icon">└</span> 竞品口碑</div>
+          <div class="tree-item"><span class="muted-icon">└</span> 用户情绪</div>
+          <div class="tree-item"><span class="muted-icon">└</span> 增长假设</div>
+        </section>
+
+        <section class="section-block">
+          <div class="section-head">
+            <span>实体</span>
+          </div>
+          <div class="tree-item"><span class="muted-icon">▾</span> 实体</div>
+          <div class="tree-item"><span class="muted-icon">└</span> 辛巴小杨哥</div>
+          <div class="tree-item"><span class="muted-icon">└</span> 直播间舆情</div>
+          <div class="tree-item"><span class="muted-icon">└</span> 行政 HR 政策</div>
+        </section>
+      </div>
+    </aside>
+
+    <main class="view chat-view" data-page="knowledge">
+      <section class="chat-shell">
+        <header class="chat-head">
+          <div class="panel-icon">▥</div>
+          <div class="chat-title">新对话</div>
+          <div class="chat-actions">
+            <button type="button">⊕</button>
+            <button type="button">▤</button>
+          </div>
+        </header>
+        <section class="chat-body">从你的知识库中提问，回答会附带引用。</section>
+        <section class="composer-wrap">
+          <div class="composer">
+            今天有什么我可以帮你的吗？
+            <button class="send" type="button">➤</button>
+          </div>
+        </section>
+      </section>
+      <aside class="right-strip">⊙</aside>
+    </main>
+
+    <main class="view graph-view hidden" data-page="graph">
+      <div class="graph-canvas">
+        <div class="graph-line" style="left:46%; top:51%; width:270px; transform:rotate(-26deg);"></div>
+        <div class="graph-line" style="left:46%; top:51%; width:255px; transform:rotate(29deg);"></div>
+        <div class="graph-line" style="left:46%; top:51%; width:250px; transform:rotate(-91deg);"></div>
+        <div class="graph-line" style="left:22%; top:46%; width:320px; transform:rotate(24deg);"></div>
+        <div class="graph-line" style="left:58%; top:43%; width:210px; transform:rotate(57deg);"></div>
+        <div class="graph-line" style="left:28%; top:77%; width:350px; transform:rotate(-34deg);"></div>
+        <div class="graph-line" style="left:46%; top:51%; width:260px; transform:rotate(79deg);"></div>
+
+        <div class="graph-node" style="left:46%; top:51%;"><span class="dot big other"></span>Wiki Log</div>
+        <div class="graph-node" style="left:38%; top:17%;"><span class="dot entity"></span>SCADA系统</div>
+        <div class="graph-node" style="left:47%; top:23%;"><span class="dot entity"></span>MQTT</div>
+        <div class="graph-node" style="left:63%; top:34%;"><span class="dot entity"></span>Thermomonas</div>
+        <div class="graph-node" style="left:70%; top:43%;"><span class="dot entity"></span>反硝化除磷菌</div>
+        <div class="graph-node" style="left:67%; top:73%;"><span class="dot concept"></span>硝化作用</div>
+        <div class="graph-node" style="left:45%; top:86%;"><span class="dot source"></span>Source: research-do-2026-04-07.md</div>
+        <div class="graph-node" style="left:23%; top:70%;"><span class="dot entity"></span>LSTM</div>
+        <div class="graph-node" style="left:25%; top:42%;"><span class="dot other"></span>Wiki Index</div>
+        <div class="graph-node" style="left:16%; top:50%;"><span class="dot entity"></span>PostgreSQL</div>
+        <div class="graph-node" style="left:9%; top:52%;"><span class="dot entity"></span>TDengine</div>
+        <div class="graph-node" style="left:15%; top:31%;"><span class="dot source"></span>污水处理厂AI智能化方案</div>
+        <div class="graph-node" style="left:31%; top:29%;"><span class="dot source"></span>Source: research-a20-2026-04-07.md</div>
+        <div class="graph-node" style="left:62%; top:18%;"><span class="dot source"></span>Source: research-scada-2026-04-07.md</div>
+        <div class="graph-node" style="left:77%; top:72%;"><span class="dot source"></span>Source: improving-efficiency-of-nitrogen-removal...</div>
+        <div class="graph-node" style="left:10%; top:78%;"><span class="dot query"></span>根据提供的资料，AI 在安全管理方面的应用</div>
+      </div>
+      <div class="graph-tools">
+        <button class="graph-tool" type="button">＋</button>
+        <button class="graph-tool" type="button">－</button>
+        <button class="graph-tool" type="button">⛶</button>
+      </div>
+      <div class="legend">
+        <div class="legend-title">Node Types</div>
+        <div class="legend-row"><span class="legend-dot entity"></span>Entity 23</div>
+        <div class="legend-row"><span class="legend-dot concept"></span>Concept 7</div>
+        <div class="legend-row"><span class="legend-dot source"></span>Source 13</div>
+        <div class="legend-row"><span class="legend-dot query"></span>Query 2</div>
+        <div class="legend-row"><span class="legend-dot overview"></span>Overview 1</div>
+        <div class="legend-row"><span class="legend-dot other"></span>Other 1</div>
+      </div>
+    </main>
+
+    <main class="view resource hidden" data-page="resource">
+      <header class="resource-head">
+        <div>
+          <div class="resource-title">资源库</div>
+          <div class="resource-meta">6 个资料 · 最近导入 2026-06-30 15:23:34</div>
+        </div>
+        <button class="refresh" type="button">↻ 刷新</button>
+      </header>
+
+      <section class="resource-list">
+        <article class="resource-card">
+          <div class="file-icon">↑</div>
+          <div>
+            <div class="resource-name">客服 on call 记录_20260630.docx</div>
+            <div class="resource-sub">12.4 KB · 本地文件 · 已上传 36%</div>
+          </div>
+          <span class="status uploading">上传中</span>
+          <button class="weak-delete" type="button">删除</button>
+        </article>
+
+        <article class="resource-card">
+          <div class="file-icon">✦</div>
+          <div>
+            <div class="resource-name">周报资料库同步</div>
+            <div class="resource-sub">云文档 · 导入 2026-06-30 15:22:10 · 正在抽取页面结构</div>
+          </div>
+          <span class="status producing">知识生产中</span>
+          <button class="weak-delete" type="button">删除</button>
+        </article>
+
+        <article class="resource-card selected">
+          <div class="file-icon">文</div>
+          <div>
+            <div class="resource-name">辛巴小杨哥互怼舆情分析报告_20240924.md</div>
+            <div class="resource-sub">10.2 KB · 导入 2026-06-30 15:23:34 · 来源更新 2026-06-30 15:23:34</div>
+          </div>
+          <span class="status success">知识生成成功</span>
+          <button class="weak-delete" type="button">删除</button>
+        </article>
+
+        <article class="resource-card">
+          <div class="file-icon">K</div>
+          <div>
+            <div class="resource-name">Kim 消息：薪资问题答疑群</div>
+            <div class="resource-sub">Kim 消息 · 导入 2026-06-30 14:58:09 · 生成失败，可重试</div>
+          </div>
+          <span class="status failed">知识生产失败</span>
+          <button class="weak-delete" type="button">删除</button>
+        </article>
+
+        <article class="resource-card">
+          <div class="file-icon">文</div>
+          <div>
+            <div class="resource-name">wiki.pdf</div>
+            <div class="resource-sub">10.4 KB · 导入 2026-06-30 15:19:45 · 来源更新 2026-06-30 15:22:55</div>
+          </div>
+          <span class="status success">知识生成成功</span>
+          <button class="weak-delete" type="button">删除</button>
+        </article>
+      </section>
+    </main>
+
+    <aside class="view detail hidden" data-page="resource">
+      <header class="detail-head">
+        <div>
+          <div class="detail-title">辛巴小杨哥互怼舆情分析报告_2024...</div>
+          <div class="detail-sub">文件 · 10.2 KB</div>
+        </div>
+        <span class="detail-badge">Markdown</span>
+      </header>
+      <section class="detail-body">
+        <div class="extract-box">提取的文本</div>
+        <div class="origin-head">
+          原文件
+          <button class="download" type="button">下载原文件</button>
+        </div>
+        <div class="preview-note">该原件类型暂不支持浏览器内预览，已展示可用的抽取文本。</div>
+      </section>
+    </aside>
+
+    <main class="view simple-page hidden" data-page="lint">Lint 检查：用于发现知识结构、引用、命名和重复内容问题。</main>
+
+    <main class="view simple-page hidden" data-page="review">待审核：展示需要人工确认的页面、概念、实体和资源变更。</main>
+
+    <section class="kb-menu" id="kbMenu" aria-label="我的知识库">
+      <div class="kb-menu-head">
+        <div class="kb-menu-title">我的知识库</div>
+        <div class="kb-menu-count">3 个</div>
+      </div>
+      <div class="kb-list">
+        <div class="kb-item selected">
+          <div class="kb-display">
+            <div class="kb-name-row">
+              <div class="kb-name">知识库1</div>
+              <input class="rename-input inline-name-input" type="text" value="知识库1">
+              <button class="inline-edit rename-kb" type="button" aria-label="编辑知识库名称" title="编辑">✎</button>
+              <button class="save-rename" type="button" aria-label="保存知识库名称" title="保存">✓</button>
+            </div>
+            <div class="kb-meta">创建者</div>
+          </div>
+          <div class="kb-actions">
+            <span class="chip current">当前</span>
+            <button class="weak-delete" type="button">删除</button>
+          </div>
+        </div>
+        <div class="kb-item">
+          <div class="kb-display">
+            <div class="kb-name-row">
+              <div class="kb-name">Mario Wiki</div>
+              <input class="rename-input inline-name-input" type="text" value="Mario Wiki">
+              <button class="inline-edit rename-kb" type="button" aria-label="编辑知识库名称" title="编辑">✎</button>
+              <button class="save-rename" type="button" aria-label="保存知识库名称" title="保存">✓</button>
+            </div>
+            <div class="kb-meta">管理者</div>
+          </div>
+          <div class="kb-actions">
+            <button class="weak-delete" type="button">删除</button>
+          </div>
+        </div>
+        <div class="kb-item">
+          <div class="kb-display">
+            <div class="kb-name-row">
+              <div class="kb-name">行政 HR 知识库</div>
+              <input class="rename-input inline-name-input" type="text" value="行政 HR 知识库">
+              <button class="inline-edit rename-kb" type="button" aria-label="编辑知识库名称" title="编辑">✎</button>
+              <button class="save-rename" type="button" aria-label="保存知识库名称" title="保存">✓</button>
+            </div>
+            <div class="kb-meta">管理者</div>
+          </div>
+          <div class="kb-actions">
+            <button class="weak-delete" type="button">删除</button>
+          </div>
+        </div>
+      </div>
+      <button class="create-kb" id="createKbOpen" type="button">+ 新建知识库</button>
+    </section>
+  </div>
+
+  <div class="modal-layer" id="uploadModal" aria-hidden="true">
+    <section class="modal large" role="dialog" aria-modal="true" aria-labelledby="uploadTitle">
+      <header class="modal-head">
+        <div class="modal-title" id="uploadTitle">上传知识</div>
+        <div class="modal-sub">导入到 Mario Wiki</div>
+        <button class="close" data-close="uploadModal" type="button" aria-label="关闭">×</button>
+      </header>
+      <div class="modal-body">
+        <div class="source-grid">
+          <section class="source-card">
+            <div class="source-head">
+              <div class="file-icon">云</div>
+              <div class="source-title">云文档</div>
+            </div>
+            <div class="source-body">
+              <input class="input" type="text" placeholder="粘贴云文档链接，支持多个链接">
+              <div class="small-note">可导入在线文档、表格或知识页面，提交后会同步抽取文本与结构。</div>
+            </div>
+          </section>
+
+          <section class="source-card">
+            <div class="source-head">
+              <div class="file-icon">夹</div>
+              <div class="source-title">本地文件或文件夹</div>
+            </div>
+            <div class="source-body">
+              <div class="dropzone">拖拽文件 / 文件夹到这里，或点击选择</div>
+              <div class="small-note">支持文档、PDF、Markdown、文本等资料。文件夹会按路径生成结构。</div>
+            </div>
+          </section>
+
+          <section class="source-card">
+            <div class="source-head">
+              <div class="file-icon">K</div>
+              <div class="source-title">Kim 消息</div>
+            </div>
+            <div class="source-body">
+              <input class="input" type="text" placeholder="搜索群聊、频道或粘贴消息链接">
+              <textarea class="textarea" placeholder="可补充导入范围，例如最近 30 天、指定成员、关键词"></textarea>
+            </div>
+          </section>
+
+          <section class="source-card">
+            <div class="source-head">
+              <div class="file-icon">文</div>
+              <div class="source-title">文本</div>
+            </div>
+            <div class="source-body">
+              <textarea class="textarea" placeholder="直接粘贴文本内容"></textarea>
+              <div class="small-note">适合临时资料、会议纪要、FAQ、规则说明等轻量内容。</div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <footer class="modal-foot">
+        <button class="secondary" data-close="uploadModal" type="button">取消</button>
+        <button class="primary" id="uploadSubmit" type="button">开始上传</button>
+      </footer>
+    </section>
+  </div>
+
+  <div class="modal-layer" id="searchModal" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="searchTitle">
+      <header class="modal-head">
+        <div class="modal-title" id="searchTitle">搜索</div>
+        <div class="modal-sub">知识与原始资料</div>
+        <button class="close" data-close="searchModal" type="button" aria-label="关闭">×</button>
+      </header>
+      <div class="search-modal-body">
+        <input class="search-wide" type="text" placeholder="搜索页面、概念、实体、原始资料">
+        <div class="search-tabs">
+          <button class="search-tab active" type="button">全部</button>
+          <button class="search-tab" type="button">知识</button>
+          <button class="search-tab" type="button">原始资料</button>
+        </div>
+        <div class="search-result">
+          <div class="file-icon">知</div>
+          <div>
+            <div class="result-title">直播间舆情 / 用户情绪</div>
+            <div class="result-desc">来自知识页面，关联 3 个实体、2 个概念</div>
+          </div>
+          <span class="result-type">知识</span>
+        </div>
+        <div class="search-result">
+          <div class="file-icon">文</div>
+          <div>
+            <div class="result-title">辛巴小杨哥互怼舆情分析报告_20240924.md</div>
+            <div class="result-desc">原始资料 · Markdown · 知识生成成功</div>
+          </div>
+          <span class="result-type">原始资料</span>
+        </div>
+        <div class="search-result">
+          <div class="file-icon">概</div>
+          <div>
+            <div class="result-title">客服升级</div>
+            <div class="result-desc">概念 · 来自客服 on call 记录与 Kim 消息</div>
+          </div>
+          <span class="result-type">知识</span>
+        </div>
+      </div>
+      <footer class="modal-foot">
+        <button class="secondary" data-close="searchModal" type="button">关闭</button>
+      </footer>
+    </section>
+  </div>
+
+  <div class="modal-layer" id="createKbModal" aria-hidden="true">
+    <section class="modal large" role="dialog" aria-modal="true" aria-labelledby="createTitle">
+      <header class="modal-head">
+        <div class="modal-title" id="createTitle">新建知识库</div>
+        <button class="close" data-close="createKbModal" type="button" aria-label="关闭">×</button>
+      </header>
+      <div class="modal-body">
+        <div class="field">
+          <div class="label">名称</div>
+          <input class="input" type="text" placeholder="例如：团队周报知识库">
+        </div>
+
+        <div class="field">
+          <div class="label">描述 <span class="optional">可选</span></div>
+          <textarea class="textarea" placeholder="简单说明这个知识库收录什么内容、面向哪些人使用"></textarea>
+        </div>
+
+        <div class="field">
+          <div class="label">Purpose — Wiki 的灵魂</div>
+          <div class="template-zone">
+            <div class="template-title">模板预留区</div>
+            <div class="template-desc">后续可在这里接入周报、客服 on call、薪资问题、行政 HR 等模板，自动填充目的和边界。</div>
+            <div class="template-chips">
+              <span class="template-chip">周报</span>
+              <span class="template-chip">客服 on call</span>
+              <span class="template-chip">薪资问题</span>
+              <span class="template-chip">行政 HR</span>
+            </div>
+          </div>
+          <textarea class="textarea" placeholder="定义这个 Wiki 为什么存在：目标、关键问题、研究范围、演进中的论点。">用于沉淀每周工作进展、关键结论、问题风险和后续计划</textarea>
+        </div>
+
+        <div class="field">
+          <div class="label">Schema — 结构规则</div>
+          <div class="template-zone">
+            <div class="template-title">模板预留区</div>
+            <div class="template-desc">后续模板可写入页面类型、目录路径、命名规范、实体/概念抽取规则。</div>
+          </div>
+          <textarea class="textarea" placeholder="Wiki 如何组织：页面类型约定、路径规范、生成页面时遵循的规则。">周报放在 /weekly/ 下，项目进展放在 /projects/ 下，复盘放在 /reviews/ 下</textarea>
+        </div>
+      </div>
+      <footer class="modal-foot">
+        <button class="secondary" data-close="createKbModal" type="button">取消</button>
+        <button class="primary" type="button">创建</button>
+      </footer>
+    </section>
+  </div>
+
+  <div class="modal-layer" id="permissionModal" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="permissionTitle">
+      <header class="modal-head">
+        <div class="modal-title" id="permissionTitle">协作权限</div>
+        <div class="modal-sub">知识库1</div>
+        <button class="close" data-close="permissionModal" type="button" aria-label="关闭">×</button>
+      </header>
+      <div>
+        <div class="permission-tools">
+          <input class="search" type="text" placeholder="搜索成员姓名或邮箱">
+          <select class="select">
+            <option>协作者</option>
+            <option>管理者</option>
+          </select>
+          <button class="add-btn" type="button">添加</button>
+        </div>
+        <div class="member-list">
+          <div class="member-row">
+            <div class="avatar">张</div>
+            <div>
+              <div class="member-name">张一凡</div>
+              <div class="member-email">zhang@example.com</div>
+            </div>
+            <div class="role-pill">管理者</div>
+            <button class="weak-delete" type="button">删除</button>
+          </div>
+          <div class="member-row">
+            <div class="avatar">李</div>
+            <div>
+              <div class="member-name">李明</div>
+              <div class="member-email">liming@example.com</div>
+            </div>
+            <div class="role-pill">协作者</div>
+            <button class="weak-delete" type="button">删除</button>
+          </div>
+          <div class="member-row">
+            <div class="avatar">王</div>
+            <div>
+              <div class="member-name">王璐</div>
+              <div class="member-email">wanglu@example.com</div>
+            </div>
+            <div class="role-pill">协作者</div>
+            <button class="weak-delete" type="button">删除</button>
+          </div>
+        </div>
+      </div>
+      <footer class="modal-foot">
+        <button class="secondary" data-close="permissionModal" type="button">关闭</button>
+      </footer>
+    </section>
+  </div>
+
+  <script>
+    const kbTrigger = document.getElementById('kbTrigger');
+    const kbMenu = document.getElementById('kbMenu');
+    const uploadOpen = document.getElementById('uploadOpen');
+    const uploadSubmit = document.getElementById('uploadSubmit');
+    const createKbOpen = document.getElementById('createKbOpen');
+    const permissionOpen = document.getElementById('permissionOpen');
+    const railButtons = document.querySelectorAll('.rail-btn[data-view], .rail-btn[data-search]');
+    const views = document.querySelectorAll('.view');
+
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    kbTrigger.addEventListener('click', () => {
+      const isHidden = kbMenu.style.display !== 'block';
+      kbMenu.style.display = isHidden ? 'block' : 'none';
+      kbTrigger.setAttribute('aria-expanded', String(isHidden));
+    });
+
+    uploadOpen.addEventListener('click', () => openModal('uploadModal'));
+    createKbOpen.addEventListener('click', () => openModal('createKbModal'));
+    permissionOpen.addEventListener('click', () => openModal('permissionModal'));
+    document.querySelectorAll('.rename-kb').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const item = button.closest('.kb-item');
+        if (!item.classList.contains('selected')) {
+          return;
+        }
+        const currentName = item.querySelector('.kb-name').textContent.trim();
+        const input = item.querySelector('.inline-name-input');
+        input.value = currentName;
+        item.classList.add('editing');
+        input.focus();
+        input.select();
+      });
+    });
+
+    function finishRename(input, shouldSave) {
+      const item = input.closest('.kb-item');
+      if (shouldSave) {
+        const nextName = input.value.trim();
+        if (nextName) {
+          item.querySelector('.kb-name').textContent = nextName;
+        }
+      }
+      item.classList.remove('editing');
+    }
+
+    document.querySelectorAll('.inline-name-input').forEach((input) => {
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          finishRename(input, true);
+        }
+        if (event.key === 'Escape') {
+          finishRename(input, false);
+        }
+      });
+      input.addEventListener('blur', () => {
+        if (input.closest('.kb-item').classList.contains('editing')) {
+          finishRename(input, true);
+        }
+      });
+    });
+    document.querySelectorAll('.save-rename').forEach((button) => {
+      button.addEventListener('mousedown', (event) => {
+        event.preventDefault();
+      });
+      button.addEventListener('click', () => {
+        finishRename(button.closest('.kb-item').querySelector('.inline-name-input'), true);
+      });
+    });
+    document.querySelectorAll('.member-row .weak-delete').forEach((button) => {
+      button.addEventListener('click', () => {
+        button.closest('.member-row').remove();
+      });
+    });
+    uploadSubmit.addEventListener('click', () => {
+      closeModal('uploadModal');
+      setActiveView('resource');
+    });
+
+    function setActiveView(page) {
+      views.forEach((view) => {
+        view.classList.toggle('hidden', view.dataset.page !== page);
+      });
+
+      document.querySelectorAll('.rail-btn[data-view]').forEach((button) => {
+        button.classList.toggle('active', button.dataset.view === page);
+      });
+    }
+
+    railButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        if (button.dataset.search) {
+          openModal('searchModal');
+          return;
+        }
+
+        setActiveView(button.dataset.view);
+      });
+    });
+
+    document.querySelectorAll('[data-close]').forEach((button) => {
+      button.addEventListener('click', () => closeModal(button.dataset.close));
+    });
+
+    document.querySelectorAll('.modal-layer').forEach((layer) => {
+      layer.addEventListener('click', (event) => {
+        if (event.target === layer) {
+          closeModal(layer.id);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
