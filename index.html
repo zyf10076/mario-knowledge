@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="zh-CN">
 <head>
@@ -155,6 +156,7 @@
     .kb-home {
       grid-column: 2;
       grid-row: 2;
+      position: relative;
       min-width: 0;
       border-right: 1px solid var(--line);
       background: #fcfdfe;
@@ -164,56 +166,83 @@
     .kb-home-head {
       display: flex;
       align-items: center;
-      gap: 12px;
-      height: 76px;
-      padding: 0 20px;
+      gap: 7px;
+      height: 64px;
+      padding: 0 14px 0 18px;
     }
 
     .kb-home-title {
       min-width: 0;
-      flex: 1;
-      font-size: 19px;
+      max-width: 112px;
+      font-size: 17px;
       font-weight: 800;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
+    .head-spacer {
+      flex: 1;
+    }
+
     .upload-btn {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      height: 34px;
-      padding: 0 12px;
-      border: 1px solid var(--line-strong);
-      border-radius: 7px;
-      background: #fff;
-      color: #2f3540;
-      font-size: 14px;
+      justify-content: center;
+      gap: 4px;
+      height: 30px;
+      padding: 0 9px;
+      border: 1px solid #cfe0ff;
+      border-radius: 999px;
+      background: #f3f7ff;
+      color: #2468e8;
+      font-size: 12px;
       font-weight: 800;
+      white-space: nowrap;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
     }
 
     .upload-btn:hover {
-      background: var(--hover);
+      background: #eaf2ff;
+    }
+
+    .define-btn,
+    .manage-btn {
+      height: 30px;
+      padding: 0 8px;
+      border: 1px solid #e3e7ee;
+      border-radius: 999px;
+      background: #fff;
+      color: #65707c;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .define-btn:hover,
+    .manage-btn:hover,
+    .kb-home.selecting .manage-btn {
+      border-color: #cfe0ff;
+      background: #f7faff;
+      color: #20242c;
     }
 
     .kb-home-body {
-      height: calc(100% - 76px);
-      padding: 6px 20px 24px;
+      height: calc(100% - 64px);
+      padding: 4px 16px 88px;
       overflow: auto;
     }
 
     .home-empty {
       margin: 8px 0 22px;
       color: #969da7;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 700;
       line-height: 1.7;
     }
 
     .section-block {
-      margin-top: 20px;
+      margin-top: 16px;
     }
 
     .section-head {
@@ -238,12 +267,96 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      min-height: 36px;
-      padding: 0 10px;
+      min-height: 32px;
+      padding: 0 8px;
       border-radius: 7px;
       color: #3e4651;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .tree-item.generated {
+      cursor: default;
+    }
+
+    .tree-item.category-row {
+      font-weight: 900;
+    }
+
+    .node-check {
+      display: none;
+      width: 14px;
+      height: 14px;
+      accent-color: var(--brand);
+      flex: 0 0 auto;
+    }
+
+    .kb-home.selecting .node-check {
+      display: block;
+    }
+
+    .locked-hint {
+      display: none;
+      margin-left: auto;
+      color: #a1a8b2;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .kb-home.selecting .locked-hint {
+      display: inline;
+    }
+
+    .bulk-bar {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      min-height: 54px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+      z-index: 4;
+    }
+
+    .kb-home.selecting .bulk-bar {
+      display: flex;
+    }
+
+    .bulk-info {
+      flex: 1;
+      min-width: 0;
+      color: #7b8490;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .bulk-delete {
+      height: 34px;
+      padding: 0 12px;
+      border: 1px solid #ffb8b8;
+      border-radius: 7px;
+      color: var(--danger);
+      background: #fff;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .bulk-delete:disabled {
+      border-color: var(--line);
+      color: #b5bbc4;
+      cursor: default;
+    }
+
+    .bulk-delete:not(:disabled):hover {
+      background: var(--error-soft);
     }
 
     .tree-item:hover,
@@ -1434,40 +1547,38 @@
     <aside class="kb-home">
       <div class="kb-home-head">
         <div class="kb-home-title">Mario Wiki</div>
-        <button class="upload-btn" id="uploadOpen" type="button">↑ 上传知识</button>
+        <button class="define-btn" id="editDefinitionOpen" type="button" title="编辑知识库定义">定义</button>
+        <div class="head-spacer"></div>
+        <button class="upload-btn" id="uploadOpen" type="button" title="上传知识">↑ 上传</button>
+        <button class="manage-btn" id="manageGenerated" type="button">管理</button>
       </div>
       <div class="kb-home-body">
         <div class="home-empty">暂无页面。从顶部录入资料，知识生成后页面会出现在这里。</div>
 
         <section class="section-block">
-          <div class="section-head">
-            <span>根目录</span>
-          </div>
-          <div class="tree-item"><span class="muted-icon">▾</span> 根目录</div>
+          <div class="tree-item category-row"><span class="muted-icon">▾</span> 根目录 <span class="locked-hint">结构目录，不支持删除</span></div>
           <div class="tree-item"><span class="muted-icon">└</span> /weekly</div>
           <div class="tree-item"><span class="muted-icon">└</span> /projects</div>
           <div class="tree-item"><span class="muted-icon">└</span> /reviews</div>
         </section>
 
-        <section class="section-block">
-          <div class="section-head">
-            <span>概念</span>
-          </div>
-          <div class="tree-item"><span class="muted-icon">▾</span> 概念</div>
-          <div class="tree-item"><span class="muted-icon">└</span> 竞品口碑</div>
-          <div class="tree-item"><span class="muted-icon">└</span> 用户情绪</div>
-          <div class="tree-item"><span class="muted-icon">└</span> 增长假设</div>
+        <section class="section-block selectable-section" data-section="concept">
+          <label class="tree-item category-row"><input class="node-check section-check" type="checkbox"><span class="muted-icon">▾</span> 概念</label>
+          <label class="tree-item generated"><input class="node-check item-check" type="checkbox"><span class="muted-icon">└</span> 竞品口碑</label>
+          <label class="tree-item generated"><input class="node-check item-check" type="checkbox"><span class="muted-icon">└</span> 用户情绪</label>
+          <label class="tree-item generated"><input class="node-check item-check" type="checkbox"><span class="muted-icon">└</span> 增长假设</label>
         </section>
 
-        <section class="section-block">
-          <div class="section-head">
-            <span>实体</span>
-          </div>
-          <div class="tree-item"><span class="muted-icon">▾</span> 实体</div>
-          <div class="tree-item"><span class="muted-icon">└</span> 辛巴小杨哥</div>
-          <div class="tree-item"><span class="muted-icon">└</span> 直播间舆情</div>
-          <div class="tree-item"><span class="muted-icon">└</span> 行政 HR 政策</div>
+        <section class="section-block selectable-section" data-section="entity">
+          <label class="tree-item category-row"><input class="node-check section-check" type="checkbox"><span class="muted-icon">▾</span> 实体</label>
+          <label class="tree-item generated"><input class="node-check item-check" type="checkbox"><span class="muted-icon">└</span> 辛巴小杨哥</label>
+          <label class="tree-item generated"><input class="node-check item-check" type="checkbox"><span class="muted-icon">└</span> 直播间舆情</label>
+          <label class="tree-item generated"><input class="node-check item-check" type="checkbox"><span class="muted-icon">└</span> 行政 HR 政策</label>
         </section>
+      </div>
+      <div class="bulk-bar">
+        <div class="bulk-info" id="bulkInfo">已选中 0 项生成内容</div>
+        <button class="bulk-delete" id="bulkDelete" type="button" disabled>删除生成内容</button>
       </div>
     </aside>
 
@@ -1779,6 +1890,29 @@
     </section>
   </div>
 
+  <div class="modal-layer" id="deleteGeneratedModal" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteGeneratedTitle">
+      <header class="modal-head">
+        <div class="modal-title" id="deleteGeneratedTitle">删除生成内容</div>
+        <button class="close" data-close="deleteGeneratedModal" type="button" aria-label="关闭">×</button>
+      </header>
+      <div class="modal-body">
+        <div class="field">
+          <div class="label">确认删除所选内容？</div>
+          <div class="small-note" id="deleteGeneratedSummary">将删除 0 项生成内容。</div>
+        </div>
+        <div class="template-zone">
+          <div class="template-title">影响范围</div>
+          <div class="template-desc">只删除 Wiki 中由系统生成的概念和实体，不会删除原始资料。后续重新生成知识时，相似内容可能再次出现。</div>
+        </div>
+      </div>
+      <footer class="modal-foot">
+        <button class="secondary" data-close="deleteGeneratedModal" type="button">取消</button>
+        <button class="primary" id="confirmDeleteGenerated" type="button">删除</button>
+      </footer>
+    </section>
+  </div>
+
   <div class="modal-layer" id="createKbModal" aria-hidden="true">
     <section class="modal large" role="dialog" aria-modal="true" aria-labelledby="createTitle">
       <header class="modal-head">
@@ -1823,6 +1957,55 @@
       <footer class="modal-foot">
         <button class="secondary" data-close="createKbModal" type="button">取消</button>
         <button class="primary" type="button">创建</button>
+      </footer>
+    </section>
+  </div>
+
+  <div class="modal-layer" id="editDefinitionModal" aria-hidden="true">
+    <section class="modal large" role="dialog" aria-modal="true" aria-labelledby="editDefinitionTitle">
+      <header class="modal-head">
+        <div class="modal-title" id="editDefinitionTitle">编辑知识库定义</div>
+        <div class="modal-sub">Mario Wiki</div>
+        <button class="close" data-close="editDefinitionModal" type="button" aria-label="关闭">×</button>
+      </header>
+      <div class="modal-body">
+        <div class="field">
+          <div class="label">描述 <span class="optional">可选</span></div>
+          <textarea class="textarea" placeholder="简单说明这个知识库收录什么内容、面向哪些人使用">用于沉淀 Mario Wiki 的页面、概念、实体和引用关系，支持基于资料的问答与知识整理。</textarea>
+        </div>
+
+        <div class="field">
+          <div class="label">Purpose — Wiki 的灵魂</div>
+          <div class="template-zone">
+            <div class="template-title">模板预留区</div>
+            <div class="template-desc">后续可在这里切换周报、客服 on call、薪资问题、行政 HR 等模板，用来快速改写 Wiki 的目的和边界。</div>
+            <div class="template-chips">
+              <span class="template-chip">周报</span>
+              <span class="template-chip">客服 on call</span>
+              <span class="template-chip">薪资问题</span>
+              <span class="template-chip">行政 HR</span>
+            </div>
+          </div>
+          <textarea class="textarea" placeholder="定义这个 Wiki 为什么存在：目标、关键问题、研究范围、演进中的论点。">用于把上传资料沉淀为可追踪的页面、概念和实体，帮助用户围绕资料进行问答、检索和结构化复用。</textarea>
+        </div>
+
+        <div class="field">
+          <div class="label">Schema — 结构规则</div>
+          <div class="template-zone">
+            <div class="template-title">模板预留区</div>
+            <div class="template-desc">后续模板可写入页面类型、目录路径、命名规范、实体/概念抽取规则。</div>
+          </div>
+          <textarea class="textarea" placeholder="Wiki 如何组织：页面类型约定、路径规范、生成页面时遵循的规则。">根目录只保留系统结构；概念用于沉淀可复用主题；实体用于沉淀人物、组织、产品、政策等对象；上传资料进入资源库，生成结果进入 Wiki 目录和图谱。</textarea>
+        </div>
+
+        <div class="template-zone">
+          <div class="template-title">保存后的影响</div>
+          <div class="template-desc">保存后，后续上传资料和重新生成知识会按新的 Purpose / Schema 组织；不会立即删除原有根目录结构。</div>
+        </div>
+      </div>
+      <footer class="modal-foot">
+        <button class="secondary" data-close="editDefinitionModal" type="button">取消</button>
+        <button class="primary" data-close="editDefinitionModal" type="button">保存定义</button>
       </footer>
     </section>
   </div>
@@ -1885,7 +2068,14 @@
     const uploadOpen = document.getElementById('uploadOpen');
     const uploadSubmit = document.getElementById('uploadSubmit');
     const createKbOpen = document.getElementById('createKbOpen');
+    const editDefinitionOpen = document.getElementById('editDefinitionOpen');
     const permissionOpen = document.getElementById('permissionOpen');
+    const kbHome = document.querySelector('.kb-home');
+    const manageGenerated = document.getElementById('manageGenerated');
+    const bulkInfo = document.getElementById('bulkInfo');
+    const bulkDelete = document.getElementById('bulkDelete');
+    const deleteGeneratedSummary = document.getElementById('deleteGeneratedSummary');
+    const confirmDeleteGenerated = document.getElementById('confirmDeleteGenerated');
     const railButtons = document.querySelectorAll('.rail-btn[data-view], .rail-btn[data-search]');
     const views = document.querySelectorAll('.view');
 
@@ -1909,7 +2099,86 @@
 
     uploadOpen.addEventListener('click', () => openModal('uploadModal'));
     createKbOpen.addEventListener('click', () => openModal('createKbModal'));
+    editDefinitionOpen.addEventListener('click', () => openModal('editDefinitionModal'));
     permissionOpen.addEventListener('click', () => openModal('permissionModal'));
+
+    function selectedGeneratedItems() {
+      return Array.from(document.querySelectorAll('.item-check:checked'))
+        .map((checkbox) => checkbox.closest('.generated'))
+        .filter(Boolean);
+    }
+
+    function updateBulkState() {
+      const selectedCount = selectedGeneratedItems().length;
+      bulkInfo.textContent = `已选中 ${selectedCount} 项生成内容`;
+      bulkDelete.disabled = selectedCount === 0;
+
+      document.querySelectorAll('.selectable-section').forEach((section) => {
+        const sectionCheck = section.querySelector('.section-check');
+        const itemChecks = Array.from(section.querySelectorAll('.item-check'));
+        const checkedCount = itemChecks.filter((checkbox) => checkbox.checked).length;
+        sectionCheck.checked = itemChecks.length > 0 && checkedCount === itemChecks.length;
+        sectionCheck.indeterminate = checkedCount > 0 && checkedCount < itemChecks.length;
+      });
+    }
+
+    function exitGeneratedManageMode() {
+      kbHome.classList.remove('selecting');
+      manageGenerated.textContent = '管理';
+      document.querySelectorAll('.node-check').forEach((checkbox) => {
+        checkbox.checked = false;
+        checkbox.indeterminate = false;
+      });
+      updateBulkState();
+    }
+
+    manageGenerated.addEventListener('click', () => {
+      const nextSelecting = !kbHome.classList.contains('selecting');
+      kbHome.classList.toggle('selecting', nextSelecting);
+      manageGenerated.textContent = nextSelecting ? '完成' : '管理';
+      if (!nextSelecting) {
+        exitGeneratedManageMode();
+      } else {
+        updateBulkState();
+      }
+    });
+
+    document.querySelectorAll('.section-check').forEach((checkbox) => {
+      checkbox.closest('.category-row').addEventListener('click', (event) => {
+        if (!kbHome.classList.contains('selecting')) {
+          event.preventDefault();
+        }
+      });
+      checkbox.addEventListener('change', () => {
+        const section = checkbox.closest('.selectable-section');
+        section.querySelectorAll('.item-check').forEach((itemCheck) => {
+          itemCheck.checked = checkbox.checked;
+        });
+        updateBulkState();
+      });
+    });
+
+    document.querySelectorAll('.item-check').forEach((checkbox) => {
+      checkbox.closest('.generated').addEventListener('click', (event) => {
+        if (!kbHome.classList.contains('selecting')) {
+          event.preventDefault();
+        }
+      });
+      checkbox.addEventListener('change', updateBulkState);
+    });
+
+    bulkDelete.addEventListener('click', () => {
+      const selectedCount = selectedGeneratedItems().length;
+      deleteGeneratedSummary.textContent = `将删除 ${selectedCount} 项生成内容。`;
+      openModal('deleteGeneratedModal');
+    });
+
+    confirmDeleteGenerated.addEventListener('click', () => {
+      selectedGeneratedItems().forEach((item) => item.remove());
+      closeModal('deleteGeneratedModal');
+      exitGeneratedManageMode();
+    });
+
     document.querySelectorAll('.rename-kb').forEach((button) => {
       button.addEventListener('click', (event) => {
         event.stopPropagation();
